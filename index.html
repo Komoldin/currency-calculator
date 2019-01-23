@@ -6,31 +6,47 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Currency Calculator</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="img/refresh-goodfreephotos-icon.png">
 </head>
 <body>
 
-<div class="container">
+<main class="container">
     <div class="content">
-            <h1>Currency Calculator</h1>
-        
-            <label for="RUB">RUB</label>
-            <input type="number" name="RUB" id="RUB">
-        
-            <label for="USD">USD</label>
-            <input type="number" name="USD" id="USD">
-        
-            <div class="display">
-                Exchange rating as of <span id="date">today</span> is $1 for ₽<span class="rateRub"></span>
+        <h1>Currency Calculator</h1>
+    
+        <div class="row">
+            <div class="cell">
+                <label for="usd">USD ($)</label>
+                <input type="number" name="usd" id="usd">
             </div>
-
+            <div class="cell">
+                <label for="rub">RUB (&#8381;)</label>
+                <input type="number" name="rub" id="rub">
+            </div>
+        </div>
+        <div class="row">
+            <div class="cell">
+                <label for="eur">EUR (€)</label>
+                <input type="number" name="eur" id="eur">
+            </div>
+            <div class="cell">
+                <label for="cad">CAD (C$)</label>
+                <input type="number" name="cad" id="cad">        
+            </div>
+        </div>
+    
+        <div class="display">
+            Exchange rates for $1 are &#8381;<span class="rateRub"></span>, 
+            or €<span class="rateEur"></span>, or C$<span class="rateCad"></span> 
+            (as of <span id="timestamp">today</span>)
+        </div>
     </div>
-</div>
+</main>
 
-<footer>© Anna Kova, 2018<script type="text/JavaScript">
-    new Date().getFullYear()>2018 && document.write("-" + new Date().getFullYear());
-    </script>
+<footer>© Anna Kova, 2019<span id="date"></span>.
 </footer>
 
 <script src="js/script.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-131142493-1"></script>
 </body>
 </html>
