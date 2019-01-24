@@ -6,9 +6,12 @@ let inputUsd = document.querySelector('#usd'),
     dateDisplay = document.querySelector('#timestamp'),
     rateRub = document.querySelector('.rateRub'),
     rateEur = document.querySelector('.rateEur'),
-    rateCad = document.querySelector('.rateCad');
+    rateCad = document.querySelector('.rateCad'),
+    refreshBtn = document.querySelector('.refresh'),
+    data, usd, eur, rub, cad;
 
 init();
+setRefresh();
 
 function init() {
     getRates();
@@ -28,127 +31,82 @@ function getRates() {
 
     request.addEventListener('readystatechange', function() {
         if (request.readyState == 4 && request.status == 200) {
-            const data = JSON.parse(request.response);
-
-            rateRub.textContent = data.rates.RUB.toFixed(2);
-            rateEur.textContent = data.rates.EUR.toFixed(2);
-            rateCad.textContent = data.rates.CAD.toFixed(2);
-
-            let timestamp = new Date(data.timestamp*1000);
-            let date = new Date(timestamp).toLocaleString(undefined, {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            dateDisplay.textContent = `${date}`;
-
-            // return data;
+            data = JSON.parse(request.response);
+            setRates();
+            setTimestamp();
         } else if (request.status != 200) {
             showError();
         }
     });
 }
 
+function setRates() {
+    usd = 1; // by API def
+    rub = rateRub.textContent = data.rates.RUB.toFixed(2);
+    eur = rateEur.textContent = data.rates.EUR.toFixed(2);
+    cad = rateCad.textContent = data.rates.CAD.toFixed(2);
+}
+
+function setTimestamp() {
+    let timestamp = new Date(data.timestamp*1000); // JS - in ms, UNIX timestamp - s
+    let dateToday = new Date(timestamp).toLocaleString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    dateDisplay.textContent = dateToday;    
+}
+
 function setInputRub() {
     inputRub.addEventListener('input', () => {
-        let request = new XMLHttpRequest();
+        let input = parseFloat(inputRub.value) / rub;
         
-        request.open('GET', 'js/current.json');
-        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send();
-        
-        request.addEventListener('readystatechange', function() {
-            if (request.readyState === 4 && request.status === 200) {
-                let data = JSON.parse(request.response);
-                let replyUsd = parseFloat(inputRub.value) / data.rub;
-                let replyEur = parseFloat(inputRub.value) / data.rub * data.eur;
-                let replyCad = parseFloat(inputRub.value) / data.rub * data.cad;
-                
-                inputUsd.value = replyUsd.toFixed(2);
-                inputEur.value = replyEur.toFixed(2);
-                inputCad.value = replyCad.toFixed(2);
-            } else if (request.status != 200) {
-                showError();
-            }
-        });
+        inputUsd.value = input.toFixed(2);
+        inputEur.value = (input * eur).toFixed(2);
+        inputCad.value = (input * cad).toFixed(2);
     });
 }
 
 function setInputUsd() {
     inputUsd.addEventListener('input', () => {
-        let request = new XMLHttpRequest();
+        let input = parseFloat(inputUsd.value);
         
-        request.open('GET', 'js/current.json');
-        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send();
-        
-        request.addEventListener('readystatechange', function() {
-            if (request.readyState === 4 && request.status === 200) {
-                let data = JSON.parse(request.response);
-                let replyRub = parseFloat(inputUsd.value) * data.rub;
-                let replyEur = parseFloat(inputUsd.value) * data.eur;
-                let replyCad = parseFloat(inputUsd.value) * data.cad;
-                
-                inputRub.value = replyRub.toFixed(2);
-                inputEur.value = replyEur.toFixed(2);
-                inputCad.value = replyCad.toFixed(2);
-            } else if (request.status != 200) {
-                showError();
-            }
-        });
+        inputRub.value = (input * rub).toFixed(2);
+        inputEur.value = (input * eur).toFixed(2);
+        inputCad.value = (input * cad).toFixed(2);
     });
 }
 
 function setInputEur() {
     inputEur.addEventListener('input', () => {
-        let request = new XMLHttpRequest();
+        let input = parseFloat(inputEur.value) / eur;
         
-        request.open('GET', 'js/current.json');
-        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send();
-        
-        request.addEventListener('readystatechange', function() {
-            if (request.readyState === 4 && request.status === 200) {
-                let data = JSON.parse(request.response);
-                let replyUsd = parseFloat(inputEur.value) / data.eur;
-                let replyRub = parseFloat(inputEur.value) / data.eur * data.rub;
-                let replyCad = parseFloat(inputEur.value) / data.eur * data.cad;
-                
-                inputUsd.value = replyUsd.toFixed(2);
-                inputRub.value = replyRub.toFixed(2);
-                inputCad.value = replyCad.toFixed(2);
-            } else if (request.status != 200) {
-                showError();
-            }
-        });
+        inputUsd.value = input.toFixed(2);
+        inputRub.value = (input * rub).toFixed(2);
+        inputCad.value = (input * cad).toFixed(2);
     });
 }
 
 function setInputCad() {
     inputCad.addEventListener('input', () => {
-        let request = new XMLHttpRequest();
+        let input = parseFloat(inputCad.value) / cad;
         
-        request.open('GET', 'js/current.json');
-        request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        request.send();
+        inputUsd.value = input.toFixed(2);
+        inputRub.value = (input * rub).toFixed(2);
+        inputEur.value = (input * eur).toFixed(2);
+    });
+}
+
+function setRefresh() {
+    refreshBtn.addEventListener('click', () => {
+        init();
+        let input = parseFloat(inputUsd.value);
         
-        request.addEventListener('readystatechange', function() {
-            if (request.readyState === 4 && request.status === 200) {
-                let data = JSON.parse(request.response);
-                let replyUsd = parseFloat(inputCad.value) / data.cad;
-                let replyEur = parseFloat(inputCad.value) / data.cad * data.eur;
-                let replyRub = parseFloat(inputCad.value) / data.cad * data.rub;
-                
-                inputUsd.value = replyUsd.toFixed(2);
-                inputRub.value = replyRub.toFixed(2);
-                inputEur.value = replyEur.toFixed(2);
-            } else if (request.status != 200) {
-                showError();
-            }
-        });
+        inputRub.value = (input * rub).toFixed(2);
+        inputEur.value = (input * eur).toFixed(2);
+        inputCad.value = (input * cad).toFixed(2);
     });
 }
 
@@ -159,13 +117,12 @@ function showError() {
     display.style.fontSize = '110%';
 }
 
-
 // Copyright Date Script
 let dates = document.querySelector('span#date');
 
 if (new Date().getFullYear()>2019) {
-    let date = new Date().getFullYear();
-    dates.textContent = `-${date}`;
+    let dateCopyright = new Date().getFullYear();
+    dates.textContent = `-${dateCopyright}`;
 }
 
 // Global site tag (gtag.js) - Google Analytics Script
